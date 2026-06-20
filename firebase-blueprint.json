@@ -1,0 +1,62 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile, lesson progress, scores, and custom caricature setup.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "Unique email address identifying the user."
+        },
+        "password": {
+          "type": "string",
+          "description": "Hashed or plain password for basic authentication."
+        },
+        "name": {
+          "type": "string",
+          "description": "Full name or nickname of the learner."
+        },
+        "phone": {
+          "type": "string",
+          "description": "Contact phone number for verifying or forwarding orders."
+        },
+        "address": {
+          "type": "string",
+          "description": "Delivery address for shipping orders."
+        },
+        "avatarUrl": {
+          "type": "string",
+          "description": "Optional profile picture URL."
+        },
+        "caricature": {
+          "type": "object",
+          "description": "Custom Avatar customization setup attributes."
+        },
+        "totalScore": {
+          "type": "integer",
+          "description": "XP or total score achieved."
+        },
+        "currentLevel": {
+          "type": "integer",
+          "description": "Current learning level index."
+        },
+        "currentSteps": {
+          "type": "integer",
+          "description": "Total steps completed by the user."
+        },
+        "completedLessons": {
+          "type": "array",
+          "description": "IDs of lessons already completed."
+        }
+      },
+      "required": ["email", "name"]
+    }
+  },
+  "firestore": {
+    "la_verdu_users/{userEmail}": {
+      "schema": "User",
+      "description": "Users stored in Firestore, keyed by email address."
+    }
+  }
+}

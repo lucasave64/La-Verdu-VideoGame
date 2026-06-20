@@ -1,0 +1,6 @@
+{
+  "name": "La Verdu Game",
+  "description": "Videojuego educativo estilo Duolingo para La Verdu de Villa Cabrera, con concientización saludable, huertas hogareñas, yerba mate Piporé, miel, recetas y pedidos por WhatsApp.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

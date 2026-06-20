@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;700;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
+
+  /* Custom Bento Grid Theme Colors overriding standard colors cleanly */
+  --color-brand-green: #58CC02;
+  --color-brand-green-dark: #46A302;
+  --color-brand-yellow: #FFD900;
+  --color-brand-yellow-dark: #D3A100;
+  --color-brand-blue: #1CB0F6;
+  --color-brand-blue-dark: #1899D6;
+  --color-brand-orange: #FF9600;
+  --color-brand-red: #FF4B4B;
+  --color-brand-border: #E5E5E5;
+  --color-brand-gray: #F7F8F9;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-brand-gray);
+  color: #4B4B4B;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 900;
+}
+
+/* Custom gorgeous scrollbar for lists */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 99px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
