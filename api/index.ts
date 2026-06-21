@@ -1,4 +1,3 @@
-// @ts-ignore
-import serverModule from '../dist/server.cjs';
-const app = (serverModule as any).default || serverModule;
+import app from '../server.ts';
 export default app;
+
