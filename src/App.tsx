@@ -42,6 +42,7 @@ export default function App() {
   // Compliant user interaction hook to play background music loop once user interacts with page
   useEffect(() => {
     const startMusicOnInteraction = () => {
+      audioManager.setLevel(selectedLevelId);
       audioManager.startBackgroundMusic();
       window.removeEventListener('click', startMusicOnInteraction);
     };
@@ -51,6 +52,11 @@ export default function App() {
       audioManager.stopBackgroundMusic();
     };
   }, []);
+
+  // Update level of audio manager when selected level changes
+  useEffect(() => {
+    audioManager.setLevel(selectedLevelId);
+  }, [selectedLevelId]);
 
   const toggleMute = () => {
     const nextMuted = !isMuted;

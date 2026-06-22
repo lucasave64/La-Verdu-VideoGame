@@ -10,6 +10,7 @@ let audioCtx: AudioContext | null = null;
 let musicInterval: any = null;
 let isMusicMutedGlobal = false;
 let isSfxMutedGlobal = false;
+let activeLevelIdGlobal = 1;
 
 // Persist separate mute settings through local storage
 if (typeof window !== 'undefined') {
@@ -189,6 +190,18 @@ export const audioManager = {
     }
   },
 
+  // Set the current active level and switch background chiptunes instantly
+  setLevel(levelId: number) {
+    if (activeLevelIdGlobal === levelId) return;
+    activeLevelIdGlobal = levelId;
+    
+    // If music is already playing, restart with the new level's retro loop!
+    if (musicInterval) {
+      this.stopBackgroundMusic();
+      this.startBackgroundMusic();
+    }
+  },
+
   // Start a delightful, lightweight looping video-game chiptune melody!
   startBackgroundMusic() {
     if (isMusicMutedGlobal) return;
@@ -197,27 +210,76 @@ export const audioManager = {
     const ctx = getAudioContext();
     if (!ctx) return;
 
-    // A cheerful pentatonic scale song track for La Verdu, repeating every 4 seconds
-    // Notes: C4, D4, E4, G4, A4, C5
-    const melody = [
-      { note: 261.63, time: 0 },    // C4
-      { note: 329.63, time: 0.25 }, // E4
-      { note: 392.00, time: 0.5 },  // G4
-      { note: 329.63, time: 0.75 }, // E4
-      { note: 440.00, time: 1.0 },  // A4
-      { note: 392.00, time: 1.25 }, // G4
-      { note: 523.25, time: 1.5 },  // C5
-      { note: 440.00, time: 1.75 }, // A4
-      
-      { note: 293.66, time: 2.0 },  // D4
-      { note: 392.00, time: 2.25 }, // G4
-      { note: 329.63, time: 2.5 },  // E4
-      { note: 261.63, time: 2.75 }, // C4
-      { note: 392.00, time: 3.0 },  // G4
-      { note: 440.00, time: 3.25 }, // A4
-      { note: 523.25, time: 3.5 },  // C5
-      { note: 0,      time: 3.75 }  // pause
-    ];
+    // Define three distinct 8-bit compositions from the 80s:
+    let melody: { note: number; type: 'triangle' | 'square'; vol: number }[] = [];
+
+    if (activeLevelIdGlobal === 2) {
+      // LEVEL 2: "Santo Pipó Mate-folk"
+      // Folklore/Litoral minor chord-based retro syncopation, very nostalgic 80s atmosphere
+      melody = [
+        { note: 220.00, type: 'triangle', vol: 0.035 }, // A3
+        { note: 261.63, type: 'triangle', vol: 0.035 }, // C4
+        { note: 329.63, type: 'triangle', vol: 0.035 }, // E4
+        { note: 220.00, type: 'triangle', vol: 0.035 }, // A3
+        { note: 293.66, type: 'square',   vol: 0.015 }, // D4 (sharp crisp accent)
+        { note: 329.63, type: 'triangle', vol: 0.035 }, // E4
+        { note: 392.00, type: 'square',   vol: 0.015 }, // G4 (accent)
+        { note: 0,      type: 'triangle', vol: 0.000 }, // pause
+        
+        { note: 329.63, type: 'triangle', vol: 0.035 }, // E4
+        { note: 293.66, type: 'triangle', vol: 0.035 }, // D4
+        { note: 261.63, type: 'triangle', vol: 0.035 }, // C4
+        { note: 220.00, type: 'triangle', vol: 0.035 }, // A3
+        { note: 261.63, type: 'square',   vol: 0.015 }, // C4
+        { note: 196.00, type: 'triangle', vol: 0.035 }, // G3
+        { note: 220.00, type: 'triangle', vol: 0.040 }, // A3 (deep sustained)
+        { note: 0,      type: 'triangle', vol: 0.000 }  // pause
+      ];
+    } else if (activeLevelIdGlobal === 3) {
+      // LEVEL 3: "Golden Garden Quest"
+      // Heroic retro fantasy RPG adventure overworld, upbeat rising thirds and minor-major transitions
+      melody = [
+        { note: 261.63, type: 'square',   vol: 0.012 }, // C4
+        { note: 392.00, type: 'triangle', vol: 0.030 }, // G4
+        { note: 329.63, type: 'square',   vol: 0.012 }, // E4
+        { note: 392.00, type: 'triangle', vol: 0.030 }, // G4
+        { note: 523.25, type: 'square',   vol: 0.015 }, // C5 (higher crisp pitch!)
+        { note: 392.00, type: 'triangle', vol: 0.030 }, // G4
+        { note: 659.25, type: 'square',   vol: 0.012 }, // E5
+        { note: 587.33, type: 'triangle', vol: 0.030 }, // D5
+        
+        { note: 523.25, type: 'square',   vol: 0.012 }, // C5
+        { note: 493.88, type: 'triangle', vol: 0.030 }, // B4
+        { note: 440.00, type: 'square',   vol: 0.012 }, // A4
+        { note: 392.00, type: 'triangle', vol: 0.030 }, // G4
+        { note: 349.23, type: 'square',   vol: 0.012 }, // F4
+        { note: 329.63, type: 'triangle', vol: 0.030 }, // E4
+        { note: 293.66, type: 'square',   vol: 0.012 }, // D4
+        { note: 261.63, type: 'triangle', vol: 0.035 }  // C4
+      ];
+    } else {
+      // LEVEL 1: "Super Bouncy Greens" (Classic)
+      // Bouncy, lighthearted happy 8-bit arcade major melody, perfect for fruits & veggies
+      melody = [
+        { note: 261.63, type: 'triangle', vol: 0.035 }, // C4
+        { note: 329.63, type: 'triangle', vol: 0.035 }, // E4
+        { note: 392.00, type: 'square',   vol: 0.015 }, // G4 (crisp sound)
+        { note: 329.63, type: 'triangle', vol: 0.035 }, // E4
+        { note: 440.00, type: 'square',   vol: 0.015 }, // A4
+        { note: 392.00, type: 'triangle', vol: 0.035 }, // G4
+        { note: 523.25, type: 'square',   vol: 0.018 }, // C5
+        { note: 440.00, type: 'triangle', vol: 0.035 }, // A4
+        
+        { note: 293.66, type: 'triangle', vol: 0.035 }, // D4
+        { note: 392.00, type: 'square',   vol: 0.015 }, // G4
+        { note: 329.63, type: 'triangle', vol: 0.035 }, // E4
+        { note: 261.63, type: 'triangle', vol: 0.035 }, // C4
+        { note: 392.00, type: 'square',   vol: 0.015 }, // G4
+        { note: 440.00, type: 'triangle', vol: 0.035 }, // A4
+        { note: 523.25, type: 'square',   vol: 0.018 }, // C5
+        { note: 0,      type: 'triangle', vol: 0.000 }  // pause
+      ];
+    }
 
     let beat = 0;
     const playNote = () => {
@@ -233,11 +295,11 @@ export const audioManager = {
           const osc = ctxActive.createOscillator();
           const gain = ctxActive.createGain();
 
-          osc.type = 'triangle'; // Smooth classic retro 8-bit sound
+          osc.type = currentMelodyStep.type;
           osc.frequency.setValueAtTime(freq, ctxActive.currentTime);
 
-          // Very quiet background music style volume (only 0.02) so it is pleasant and not overwhelming
-          gain.gain.setValueAtTime(0.025, ctxActive.currentTime);
+          // Leveling music volume slightly so it is pleasant and highly nostalgic
+          gain.gain.setValueAtTime(currentMelodyStep.vol, ctxActive.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.001, ctxActive.currentTime + 0.2);
 
           osc.connect(gain);
@@ -254,7 +316,7 @@ export const audioManager = {
 
     // Play initial beat
     playNote();
-    // Schedule subsequent beats every 250 milliseconds
+    // Schedule subsequent beats every 250 milliseconds with retro precise timing
     musicInterval = setInterval(playNote, 250);
   },
 

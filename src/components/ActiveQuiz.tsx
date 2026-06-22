@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { QuizQuestion, LessonSummary } from '../types';
 import DiegoMascot from './DiegoMascot';
-import { Heart, CheckCircle2, XCircle, ArrowUp, ArrowDown, Award, HelpCircle } from 'lucide-react';
+import { Heart, CheckCircle2, XCircle, ArrowUp, ArrowDown, Award, HelpCircle, Share2, Facebook, MessageCircle, Copy, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { audioManager } from '../utils/audio';
 
@@ -29,6 +29,7 @@ export default function ActiveQuiz({ lesson, onComplete, onQuit }: ActiveQuizPro
   const [isCorrect, setIsCorrect] = useState(false);
   const [gainedXp, setGainedXp] = useState(0);
   const [showSummary, setShowSummary] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   // Trigger win or failure sound when showing summary
   React.useEffect(() => {
@@ -41,13 +42,19 @@ export default function ActiveQuiz({ lesson, onComplete, onQuit }: ActiveQuizPro
     }
   }, [showSummary, hearts]);
 
-  // Initialize sorting list if needed when currentIdx changes
+  // Initialize sorting list or shuffled options if needed when currentIdx changes
   const q: QuizQuestion = lesson.questions[currentIdx];
+  const [shuffledOptions, setShuffledOptions] = useState<string[]>([]);
   
   React.useEffect(() => {
-    if (q && q.type === 'sorting') {
-      // Shuffle slightly or keep options order as start state
-      setSortItems([...q.options]);
+    if (q) {
+      if (q.type === 'sorting') {
+        setSortItems([...q.options]);
+      } else if (q.options) {
+        // Shuffle the options array so correct answers are in unpredictable positions
+        const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+        setShuffledOptions(shuffled);
+      }
     }
     setSelectedOption(null);
     setIsAnswered(false);
@@ -161,11 +168,91 @@ export default function ActiveQuiz({ lesson, onComplete, onQuit }: ActiveQuizPro
           </div>
         </div>
 
+        {/* Compartir logros block */}
+        {isSuccess && (
+          <div className="mt-5 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+            <span className="text-xs font-black text-gray-500 uppercase block mb-3 flex items-center justify-center gap-1">
+              <Share2 className="w-4 h-4 text-emerald-500" />
+              ¡Compartí tu triunfo en redes!
+            </span>
+            <div className="flex justify-center items-center gap-3">
+              {/* WhatsApp */}
+              <button
+                type="button"
+                onClick={() => {
+                  audioManager.playClick();
+                  const text = `¡Acabo de completar el desafío de '${lesson.title}' con ${gainedXp + lesson.xpReward} XP en VerduPlay, el juego de La Verdu! 🥦✨ ¿Podés superarme? Aprendé de alimentación saludable acá: ${window.location.origin}`;
+                  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+                }}
+                className="p-2.5 rounded-full bg-[#25D366] text-white hover:scale-110 active:scale-95 transition-all shadow-sm flex items-center justify-center"
+                title="Compartir en WhatsApp"
+              >
+                <MessageCircle className="w-5 h-5 fill-current" />
+              </button>
+
+              {/* Twitter / X */}
+              <button
+                type="button"
+                onClick={() => {
+                  audioManager.playClick();
+                  const text = `¡Acabo de completar el desafío de '${lesson.title}' con ${gainedXp + lesson.xpReward} XP en VerduPlay de La Verdu (Villa Cabrera)! 🍉🔥 ¿Quién me supera? ¡Jugá vos también! #LaVerdu #ComidaSaludable`;
+                  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.origin)}`, '_blank');
+                }}
+                className="p-2.5 rounded-full bg-[#1DA1F2] text-white hover:scale-110 active:scale-95 transition-all shadow-sm flex items-center justify-center"
+                title="Compartir en Twitter / X"
+              >
+                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                  <path d="M18.244 2.25h3.308l-5.027 5.744 5.914 7.824h-6.653l-5.214-6.817L4.39 17.5H1.08l5.513-6.299L1.08 3.5H7.9l4.7 6.219 5.644-6.219Zm-1.161 12.02h1.833L7.084 4.126H5.117L17.083 14.27Z"/>
+                </svg>
+              </button>
+
+              {/* Facebook */}
+              <button
+                type="button"
+                onClick={() => {
+                  audioManager.playClick();
+                  const text = `¡Completé la lección '${lesson.title}' con un gran puntaje en VerduPlay de La Verdu!`;
+                  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.origin)}&quote=${encodeURIComponent(text)}`, '_blank');
+                }}
+                className="p-2.5 rounded-full bg-[#1877F2] text-white hover:scale-110 active:scale-95 transition-all shadow-sm flex items-center justify-center"
+                title="Compartir en Facebook"
+              >
+                <Facebook className="w-5 h-5 fill-current" />
+              </button>
+
+              {/* Copy Link */}
+              <button
+                type="button"
+                onClick={() => {
+                  audioManager.playClick();
+                  const text = `¡Hice ${gainedXp + lesson.xpReward} XP en VerduPlay en la lección '${lesson.title}'! Jugá de forma saludable en La Verdu: ${window.location.origin}`;
+                  navigator.clipboard.writeText(text);
+                  setLinkCopied(true);
+                  setTimeout(() => setLinkCopied(false), 2000);
+                }}
+                className="p-2.5 rounded-full bg-slate-200 hover:bg-slate-350 text-slate-700 hover:scale-110 active:scale-95 transition-all shadow-sm relative flex items-center justify-center"
+                title="Copiar logro"
+              >
+                {linkCopied ? (
+                  <Check className="w-5 h-5 text-emerald-600" />
+                ) : (
+                  <Copy className="w-5 h-5" />
+                )}
+                {linkCopied && (
+                  <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm whitespace-nowrap">
+                    ¡Copiado!
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
         <button
           type="button"
           id="finish-quiz-btn"
           onClick={handleFinish}
-          className="w-full mt-8 py-3.5 px-4 bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 text-yellow-950 font-black rounded-2xl shadow-md border-b-4 border-yellow-600 active:scale-98 transition-all"
+          className="w-full mt-6 py-3.5 px-4 bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 text-yellow-950 font-black rounded-2xl shadow-md border-b-4 border-yellow-600 active:scale-98 transition-all"
         >
           {isSuccess ? '¡Recibir Recompensa!' : 'Volver al Mapa'}
         </button>
@@ -233,7 +320,7 @@ export default function ActiveQuiz({ lesson, onComplete, onQuit }: ActiveQuizPro
         <div className="space-y-2.5">
           {/* MULTIPLE CHOICE & TRUE FALSE */}
           {q.type !== 'sorting' ? (
-            q.options.map((opt, i) => {
+            shuffledOptions.map((opt, i) => {
               const isSelected = selectedOption === opt;
               const isOptionCorrect = opt === q.correctAnswer;
               
